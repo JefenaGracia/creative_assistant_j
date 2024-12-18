@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Classroom: {{ class_name }}</h1>
+<a href="{{ url_for('add_project', class_name=class_name) }}" class="btn btn-secondary btn-lg">Add Project</a>
+<h2>Projects</h2>
+<ul>
+    {% for project_name in projects %}
+    <li>
+        <a href="{{ url_for('project_view', class_name=class_name, project_name=project_name) }}">{{ project_name }}</a>
+
+    </li>
+    {% else %}
+    <li>No projects available.</li>
+    {% endfor %}
+</ul>
+<a href="{{ url_for('teachers_home') }}">Back</a>
+{% endblock %}

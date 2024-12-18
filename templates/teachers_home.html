@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="alert alert-info">
+                <ul>
+                    {% for message in messages %}
+                        <li>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    {% if session['role'] == 'teacher' %}
+        <h1>Classrooms</h1>
+        <ul>
+            {% for class_name in classrooms.keys() %}
+                <li>
+                    <a href="{{ url_for('classroom_view', class_name=class_name) }}">{{ class_name }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+
+        <a href="{{ url_for('upload') }}" class="btn btn-success">Add Classroom</a>
+    {% else %}
+        <p>You do not have access to this page.</p>
+    {% endif %}
+{% endblock %}

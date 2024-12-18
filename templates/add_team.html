@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+<form method="POST">
+    <label for="team_name">Team Name:</label>
+    <input type="text" id="team_name" name="team_name" required>
+    <h3>Students:</h3>
+    {% for student in students %}
+    <label>
+        <input type="checkbox" name="students" value="{{ student['name'] }}"> {{ student['name'] }}
+    </label>
+    <br>
+    {% endfor %}
+    <button type="submit">Add Team</button>
+</form>
+<a href="{{ url_for('project_view', class_name=class_name, project_name=project_name) }}">Back</a>
+{% endblock %}

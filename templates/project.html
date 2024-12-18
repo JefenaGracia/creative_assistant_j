@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Project: {{ project_name }}</h1>
+<a href="{{ url_for('add_team', class_name=class_name, project_name=project_name) }}" class="btn btn-primary btn-lg mr-3">Add Team</a>
+<h2>Teams</h2>
+<ul>
+    {% for team_name in teams %}
+    <li>
+        <a href="{{ url_for('team_view', class_name=class_name, project_name=project_name, team_name=team_name) }}">
+            {{ team_name }}
+        </a>
+    </li>
+    {% else %}
+    <li>No teams available.</li>
+    {% endfor %}
+</ul>
+<a href="{{ url_for('classroom_view', class_name=class_name) }}">Back</a>
+{% endblock %}

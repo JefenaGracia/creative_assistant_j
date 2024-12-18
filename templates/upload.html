@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block content %}
+<form method="POST" enctype="multipart/form-data">
+    <label for="class_name">Class Name:</label>
+    <input type="text" id="class_name" name="class_name" required>
+    <label for="student_csv">Student CSV:</label>
+    <input type="file" id="student_csv" name="student_csv" accept=".csv" required>
+    <button type="submit">Upload</button>
+</form>
+<a href="{{ url_for('teachers_home') }}">Back</a>
+{% endblock %}
