@@ -253,33 +253,36 @@ def project_view(class_name, project_name):
         return redirect(url_for('classroom_view', class_name=class_name))
 
     classroom_ref = db.collection('classrooms').document(class_name).get()
-    teacher_email = classroom_ref.to_dict()['teacherEmail']
+    teacher_email = classroom_ref.to_dict().get('teacherEmail', '')
     student_emails = [s.id for s in db.collection('classrooms').document(class_name).collection('students').stream()]
 
     if session['user'] != teacher_email and session['user'] not in student_emails:
         flash("You do not have access to this project.")
         return redirect(url_for('login'))
 
+    # Fetch teams and check if student is assigned
     teams_ref = db.collection('classrooms').document(class_name).collection('Projects').document(project_name).collection('teams').stream()
     teams = {team.id: team.to_dict() for team in teams_ref}
 
-    # Check if the user is a student and if they have been assigned a team
-    user_role = session.get('role')  # Assuming the user's role (teacher or student) is stored in the session
+    user_role = session.get('role')
     student_team_assigned = None
-    if user_role == 'student':
-        # Fetch the student's team from the database (assuming this is where it's stored)
-        student_team_ref = db.collection('classrooms').document(class_name).collection('Projects').document(project_name).collection('teams').where('members', 'array_contains', session['user']).get()
-        
-        if student_team_ref:
-            student_team_assigned = student_team_ref[0].id  # Assuming the student's team is stored under 'members'
+
+    if user_role == 'student' and session['user'] in student_emails:
+        for team_name, team_members in teams.items():
+            if session['user'] in team_members:
+                student_team_assigned = team_name
+                break
 
     return render_template(
         'project.html', 
         class_name=class_name, 
         project_name=project_name, 
-        teams=teams,
+        teams=teams, 
         student_team_assigned=student_team_assigned
     )
+
+
+
 
 @app.route('/classroom/<class_name>/project/<project_name>/add_team', methods=['GET', 'POST'])
 def add_team(class_name, project_name):
@@ -330,7 +333,7 @@ def team_view(class_name, project_name, team_name):
         return redirect(url_for('login'))
 
     team_ref = db.collection('classrooms').document(class_name).collection('Projects').document(project_name).collection('teams').document(team_name).get()
-    
+
     if not team_ref.exists:
         flash("Team not found.")
         return redirect(url_for('project_view', class_name=class_name, project_name=project_name))
@@ -338,8 +341,18 @@ def team_view(class_name, project_name, team_name):
     team = team_ref.to_dict()
     members_data = [f"{name}" for email, name in team.items()]
 
-    return render_template('team.html', class_name=class_name, project_name=project_name, team_name=team_name, team_members=members_data)
+    # Verify student access
+    if session['role'] == 'student' and session['user'] not in team:
+        flash("You are not a member of this team.")
+        return redirect(url_for('project_view', class_name=class_name, project_name=project_name))
 
+    return render_template(
+        'team.html', 
+        class_name=class_name, 
+        project_name=project_name, 
+        team_name=team_name, 
+        team_members=members_data
+    )
 
 if __name__ == '__main__':
     app.run(debug=True)
