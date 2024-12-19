@@ -2,18 +2,31 @@
 
 {% block content %}
 <h1>Project: {{ project_name }}</h1>
-<a href="{{ url_for('add_team', class_name=class_name, project_name=project_name) }}" class="btn btn-primary btn-lg mr-3">Add Team</a>
-<h2>Teams</h2>
-<ul>
-    {% for team_name in teams %}
-    <li>
-        <a href="{{ url_for('team_view', class_name=class_name, project_name=project_name, team_name=team_name) }}">
-            {{ team_name }}
-        </a>
-    </li>
+
+{% if session['role'] == 'teacher' %}
+    <a href="{{ url_for('add_team', class_name=class_name, project_name=project_name) }}" class="btn btn-primary">Add Team</a>
+{% endif %}
+
+{% if session['role'] == 'student' %}
+    {% if team_assigned %}
+        <h3>Your Team: {{ team_name }}</h3>
+        <a href="{{ url_for('team_view', class_name=class_name, project_name=project_name, team_name=team_name) }}" class="btn btn-secondary">View Team</a>
     {% else %}
-    <li>No teams available.</li>
-    {% endfor %}
-</ul>
-<a href="{{ url_for('classroom_view', class_name=class_name) }}">Back</a>
+        <p>You have not been assigned any teams for this project.</p>
+    {% endif %}
+{% else %}
+    {% if teams %}
+        <ul class="list-group">
+            {% for team in teams %}
+                <li class="list-group-item">
+                    <a href="{{ url_for('team_view', class_name=class_name, project_name=project_name, team_name=team) }}">{{ team }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No teams available.</p>
+    {% endif %}
+{% endif %}
+
+<a href="{{ url_for('classroom_view', class_name=class_name) }}" class="btn btn-secondary">Back</a>
 {% endblock %}

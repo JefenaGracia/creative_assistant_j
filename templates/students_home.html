@@ -1,81 +1,40 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Dashboard - Creative Assistant</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0-alpha1/css/bootstrap.min.css">
-    <style>
-        body {
-            background-color: #f8f9fa;
-        }
-        .dashboard-container {
-            max-width: 800px;
-            margin: 50px auto;
-            padding: 30px;
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        .dashboard-container h2 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .classroom-item {
-            margin-bottom: 15px;
-        }
-        .classroom-item a {
-            text-decoration: none;
-            color: #007bff;
-        }
-        .classroom-item a:hover {
-            text-decoration: underline;
-        }
-        .btn-logout {
-            background-color: #dc3545;
-            color: white;
-            width: 100%;
-        }
-        .btn-logout:hover {
-            background-color: #c82333;
-        }
-    </style>
-</head>
-<body>
+{% extends "base.html" %}
 
-<div class="dashboard-container">
-    <h2>Student Dashboard</h2>
+{% block content %}
+<h1>Student Dashboard</h1>
 
-    <!-- Flash Messages -->
-    {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            <div class="alert alert-danger" role="alert">
-                {{ messages[0] }}
-            </div>
-        {% endif %}
-    {% endwith %}
+<!-- Flash Messages -->
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <div class="alert alert-danger" role="alert">
+            {{ messages[0] }}
+        </div>
+    {% endif %}
+{% endwith %}
 
-    <div>
-        <h3>Assigned Classrooms</h3>
-        <ul class="list-group">
-            {% for class_name, projects in classrooms.items() %}
-                <li class="list-group-item classroom-item">
+<div>
+    <h3>Assigned Classrooms</h3>
+    <ul class="list-group">
+        {% for class_name, projects in classrooms.items() %}
+            <li class="list-group-item classroom-item">
+                <a href="{{ url_for('classroom_view', class_name=class_name) }}">
                     <strong>{{ class_name }}</strong>
-                    <ul>
-                        {% for project in projects %}
-                            <li><a href="{{ url_for('project_view', project_name=project.name) }}">{{ project.name }}</a></li>
-                        {% endfor %}
-                    </ul>
-                </li>
-            {% endfor %}
-        </ul>
-    </div>
-
-    <button class="btn btn-logout" onclick="window.location.href='/logout'">Logout</button>
+                </a>
+                <ul>
+                    {% for project in projects %}
+                        <li>{{ project }}</li>
+                    {% endfor %}
+                </ul>
+            </li>
+        {% endfor %}
+    </ul>
 </div>
 
-<!-- Include the Bootstrap JS for any necessary components -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0-alpha1/js/bootstrap.bundle.min.js"></script>
+<!-- Show 'Add Team' button only for teachers -->
+{% if session['role'] == 'teacher' %}
+    <a href="{{ url_for('add_team') }}" class="btn btn-primary">Add Team</a>
+{% endif %}
 
-</body>
-</html>
+<button class="btn btn-logout" onclick="window.location.href='/logout'">Logout</button>
+
+{% endblock %}
